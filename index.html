@@ -1,0 +1,1345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DAVITHEN LAB</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-deep: #020b0f;
+    --bg-panel: #040f14;
+    --bg-card: #071820;
+    --bg-card2: #081c24;
+    --accent: #00ffe0;
+    --accent2: #00b8ff;
+    --accent3: #ff004c;
+    --accent4: #7fff00;
+    --glow: rgba(0,255,224,0.18);
+    --glow2: rgba(0,184,255,0.12);
+    --border: rgba(0,255,224,0.18);
+    --text: #c8f0ec;
+    --text-dim: #4a7c76;
+    --text-bright: #e0fff9;
+    --red: #ff004c;
+    --green: #39ff14;
+    --yellow: #ffe100;
+    --font-mono: 'Share Tech Mono', monospace;
+    --font-display: 'Orbitron', sans-serif;
+    --font-body: 'Rajdhani', sans-serif;
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  body {
+    background: var(--bg-deep);
+    color: var(--text);
+    font-family: var(--font-body);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── SCANLINE OVERLAY ── */
+  body::before {
+    content:'';
+    position:fixed; inset:0;
+    background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,255,224,0.018) 2px, rgba(0,255,224,0.018) 4px);
+    pointer-events:none; z-index:9999;
+  }
+
+  /* ══════════════════════════════
+     LOGIN SCREEN
+  ══════════════════════════════ */
+  #loginScreen {
+    position:fixed; inset:0;
+    background: radial-gradient(ellipse at 50% 40%, #021a22 0%, #010a0d 100%);
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    z-index:5000;
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+  #loginScreen.fade-out { opacity:0; transform:scale(1.04); pointer-events:none; }
+
+  .login-3d-wrap {
+    perspective: 900px;
+    margin-bottom: 30px;
+  }
+  .login-cube {
+    width: 100px; height: 100px;
+    position: relative;
+    transform-style: preserve-3d;
+    animation: spinCube 8s linear infinite;
+  }
+  @keyframes spinCube {
+    0%   { transform: rotateX(20deg) rotateY(0deg); }
+    100% { transform: rotateX(20deg) rotateY(360deg); }
+  }
+  .cube-face {
+    position:absolute; width:100px; height:100px;
+    border: 2px solid var(--accent);
+    background: rgba(0,255,224,0.04);
+    display:flex; align-items:center; justify-content:center;
+    font-family: var(--font-display);
+    font-size: 13px; color: var(--accent);
+    text-shadow: 0 0 10px var(--accent);
+    box-shadow: inset 0 0 20px rgba(0,255,224,0.08), 0 0 10px rgba(0,255,224,0.15);
+  }
+  .cube-face.front  { transform: translateZ(50px); }
+  .cube-face.back   { transform: rotateY(180deg) translateZ(50px); }
+  .cube-face.left   { transform: rotateY(-90deg) translateZ(50px); }
+  .cube-face.right  { transform: rotateY(90deg)  translateZ(50px); }
+  .cube-face.top    { transform: rotateX(90deg)  translateZ(50px); }
+  .cube-face.bottom { transform: rotateX(-90deg) translateZ(50px); }
+
+  .login-title {
+    font-family: var(--font-display);
+    font-size: clamp(28px, 5vw, 46px);
+    font-weight: 900;
+    letter-spacing: 8px;
+    color: var(--accent);
+    text-shadow: 0 0 30px var(--accent), 0 0 60px rgba(0,255,224,0.4);
+    margin-bottom: 4px;
+    text-align:center;
+  }
+  .login-subtitle {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--text-dim);
+    letter-spacing: 4px;
+    text-align:center;
+    margin-bottom: 40px;
+  }
+
+  .login-box {
+    background: linear-gradient(135deg, rgba(4,15,20,0.95), rgba(7,24,32,0.95));
+    border: 1px solid var(--border);
+    border-top: 2px solid var(--accent);
+    box-shadow: 0 0 40px rgba(0,255,224,0.1), 0 20px 60px rgba(0,0,0,0.6);
+    padding: 36px 42px;
+    width: min(420px, 92vw);
+    position:relative;
+    clip-path: polygon(0 0, calc(100% - 18px) 0, 100% 18px, 100% 100%, 18px 100%, 0 calc(100% - 18px));
+  }
+  .login-box::before {
+    content:'SECURE ACCESS TERMINAL';
+    position:absolute; top:-11px; left:20px;
+    background: var(--bg-deep);
+    padding: 0 10px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--accent);
+    letter-spacing: 3px;
+  }
+
+  .login-field-label {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 2px;
+    margin-bottom: 6px;
+    display:block;
+  }
+  .login-input {
+    width:100%;
+    background: rgba(0,255,224,0.04);
+    border: 1px solid rgba(0,255,224,0.2);
+    border-bottom: 2px solid var(--accent);
+    color: var(--accent);
+    font-family: var(--font-mono);
+    font-size: 16px;
+    padding: 12px 14px;
+    outline:none;
+    letter-spacing: 3px;
+    transition: all 0.3s;
+    margin-bottom: 24px;
+  }
+  .login-input:focus {
+    background: rgba(0,255,224,0.07);
+    border-color: var(--accent);
+    box-shadow: 0 0 15px rgba(0,255,224,0.15);
+  }
+
+  .login-btn {
+    width:100%;
+    background: linear-gradient(90deg, rgba(0,255,224,0.12), rgba(0,184,255,0.12));
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    font-family: var(--font-display);
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 4px;
+    padding: 14px;
+    cursor:pointer;
+    text-transform:uppercase;
+    transition: all 0.3s;
+    position:relative;
+    overflow:hidden;
+    clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px));
+  }
+  .login-btn:hover {
+    background: linear-gradient(90deg, rgba(0,255,224,0.22), rgba(0,184,255,0.22));
+    box-shadow: 0 0 25px rgba(0,255,224,0.3);
+    transform: translateY(-1px);
+  }
+  .login-btn:active { transform: translateY(0); }
+
+  .login-error {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--red);
+    text-align:center;
+    margin-top: 14px;
+    height: 16px;
+    letter-spacing: 1px;
+  }
+
+  /* ══════════════════════════════
+     MAIN APP (hidden until login)
+  ══════════════════════════════ */
+  #app { display:none; flex-direction:column; min-height:100vh; }
+  #app.visible { display:flex; }
+
+  /* ── ANIMATED BG ── */
+  .bg-grid {
+    position:fixed; inset:0; z-index:0;
+    background-image:
+      linear-gradient(rgba(0,255,224,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,255,224,0.04) 1px, transparent 1px);
+    background-size: 50px 50px;
+    animation: gridMove 20s linear infinite;
+  }
+  @keyframes gridMove { 0% { background-position:0 0; } 100% { background-position:50px 50px; } }
+
+  .bg-radar {
+    position:fixed;
+    right: -200px; bottom: -200px;
+    width: 600px; height: 600px;
+    border-radius:50%;
+    border: 1px solid rgba(0,255,224,0.06);
+    z-index:0;
+    animation: radarPulse 4s ease-in-out infinite;
+  }
+  .bg-radar::before, .bg-radar::after {
+    content:'';
+    position:absolute;
+    border-radius:50%;
+    border: 1px solid rgba(0,255,224,0.05);
+    inset: 80px;
+  }
+  .bg-radar::after { inset: 160px; }
+  @keyframes radarPulse { 0%,100%{opacity:.6} 50%{opacity:1} }
+
+  /* ── TOP BANNER ── */
+  .banner {
+    position:relative; z-index:10;
+    background: linear-gradient(180deg, #020e13 0%, #04141c 100%);
+    border-bottom: 1px solid rgba(0,255,224,0.2);
+    box-shadow: 0 4px 40px rgba(0,255,224,0.08);
+    padding: 0 28px;
+    display:flex;
+    align-items:center;
+    height: 72px;
+    gap: 24px;
+    flex-shrink:0;
+  }
+
+  .banner-3d-wrap {
+    perspective: 400px;
+    flex-shrink:0;
+  }
+  .banner-cube {
+    width: 44px; height: 44px;
+    transform-style:preserve-3d;
+    animation: spinCube 6s linear infinite;
+  }
+  .banner-cube-face {
+    position:absolute; width:44px; height:44px;
+    border: 1px solid rgba(0,255,224,0.5);
+    background: rgba(0,255,224,0.04);
+  }
+  .banner-cube-face.front  { transform: translateZ(22px); }
+  .banner-cube-face.back   { transform: rotateY(180deg) translateZ(22px); }
+  .banner-cube-face.left   { transform: rotateY(-90deg) translateZ(22px); }
+  .banner-cube-face.right  { transform: rotateY(90deg)  translateZ(22px); }
+  .banner-cube-face.top    { transform: rotateX(90deg)  translateZ(22px); }
+  .banner-cube-face.bottom { transform: rotateX(-90deg) translateZ(22px); }
+
+  .banner-title-wrap { flex:1; display:flex; flex-direction:column; gap:2px; }
+  .banner-title {
+    font-family: var(--font-display);
+    font-size: clamp(16px, 2.5vw, 26px);
+    font-weight: 900;
+    letter-spacing: 6px;
+    color: var(--accent);
+    text-shadow: 0 0 20px rgba(0,255,224,0.6);
+    line-height:1;
+  }
+  .banner-title span { color: var(--accent2); }
+  .banner-tagline {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text-dim);
+    letter-spacing: 3px;
+  }
+
+  .banner-stats {
+    display:flex; gap: 20px; align-items:center;
+    flex-shrink:0;
+  }
+  .bstat {
+    text-align:center;
+    border-left: 1px solid rgba(0,255,224,0.12);
+    padding-left: 20px;
+  }
+  .bstat-val {
+    font-family: var(--font-display);
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--accent);
+    line-height:1;
+  }
+  .bstat-label {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    color: var(--text-dim);
+    letter-spacing: 1px;
+  }
+
+  .banner-status {
+    display:flex; align-items:center; gap:8px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--green);
+    padding: 6px 14px;
+    border: 1px solid rgba(57,255,20,0.2);
+    background: rgba(57,255,20,0.05);
+    flex-shrink:0;
+  }
+  .status-dot {
+    width:8px; height:8px; border-radius:50%;
+    background: var(--green);
+    box-shadow: 0 0 10px var(--green);
+    animation: blink 1.5s ease-in-out infinite;
+  }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+  .banner-user {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--accent2);
+    border-left: 1px solid rgba(0,255,224,0.12);
+    padding-left: 16px;
+    flex-shrink:0;
+    cursor:pointer;
+    transition:color 0.2s;
+  }
+  .banner-user:hover { color: var(--red); }
+
+  /* ── HORIZONTAL NAV TABS ── */
+  .nav-tabs {
+    position:relative; z-index:10;
+    background: var(--bg-panel);
+    border-bottom: 1px solid rgba(0,255,224,0.1);
+    display:flex;
+    overflow-x:auto;
+    padding: 0 20px;
+    gap:0;
+    flex-shrink:0;
+  }
+  .nav-tabs::-webkit-scrollbar { height:3px; }
+  .nav-tabs::-webkit-scrollbar-track { background:transparent; }
+  .nav-tabs::-webkit-scrollbar-thumb { background: var(--accent); }
+
+  .nav-tab {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: var(--text-dim);
+    padding: 14px 22px;
+    cursor:pointer;
+    border-bottom: 2px solid transparent;
+    white-space:nowrap;
+    transition: all 0.2s;
+    text-transform:uppercase;
+    display:flex; align-items:center; gap:8px;
+    position:relative;
+  }
+  .nav-tab:hover { color: var(--accent); background: rgba(0,255,224,0.04); }
+  .nav-tab.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+    background: rgba(0,255,224,0.07);
+  }
+  .nav-tab .tab-badge {
+    background: var(--accent);
+    color: var(--bg-deep);
+    font-size: 9px;
+    font-weight:700;
+    padding: 1px 5px;
+    border-radius:2px;
+    min-width:18px;
+    text-align:center;
+  }
+
+  /* ── MAIN LAYOUT ── */
+  .main-layout {
+    position:relative; z-index:1;
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    overflow:hidden;
+  }
+
+  .tab-content { display:none; flex:1; overflow:hidden; }
+  .tab-content.active { display:flex; flex-direction:column; }
+
+  /* ── SECTION: FILES ── */
+  .section-wrap {
+    flex:1;
+    padding: 22px 24px;
+    overflow-y:auto;
+    display:flex;
+    flex-direction:column;
+    gap: 20px;
+  }
+  .section-wrap::-webkit-scrollbar { width:4px; }
+  .section-wrap::-webkit-scrollbar-track { background:transparent; }
+  .section-wrap::-webkit-scrollbar-thumb { background: rgba(0,255,224,0.2); border-radius:2px; }
+
+  .section-header {
+    display:flex; align-items:center; justify-content:space-between;
+    flex-wrap:wrap; gap:12px;
+  }
+  .section-title {
+    font-family: var(--font-display);
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 4px;
+    color: var(--accent);
+    text-transform:uppercase;
+    display:flex; align-items:center; gap:10px;
+  }
+  .section-title::before {
+    content:'';
+    width:3px; height:16px;
+    background: var(--accent);
+    box-shadow: 0 0 8px var(--accent);
+    display:block;
+  }
+
+  .btn {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 1px;
+    padding: 8px 16px;
+    cursor:pointer;
+    border:1px solid var(--accent);
+    background: rgba(0,255,224,0.07);
+    color: var(--accent);
+    transition:all 0.2s;
+    text-transform:uppercase;
+    clip-path: polygon(0 0, calc(100% - 6px) 0, 100% 6px, 100% 100%, 6px 100%, 0 calc(100% - 6px));
+  }
+  .btn:hover { background:rgba(0,255,224,0.18); box-shadow:0 0 12px rgba(0,255,224,0.25); }
+  .btn.red { border-color:var(--red); color:var(--red); background:rgba(255,0,76,0.07); }
+  .btn.red:hover { background:rgba(255,0,76,0.18); box-shadow:0 0 12px rgba(255,0,76,0.25); }
+  .btn.green { border-color:var(--green); color:var(--green); background:rgba(57,255,20,0.07); }
+  .btn.green:hover { background:rgba(57,255,20,0.18); }
+  .btn.yellow { border-color:var(--yellow); color:var(--yellow); background:rgba(255,225,0,0.07); }
+  .btn.yellow:hover { background:rgba(255,225,0,0.18); }
+
+  /* ── FILE UPLOAD ZONE ── */
+  .upload-zone {
+    border: 2px dashed rgba(0,255,224,0.2);
+    background: rgba(0,255,224,0.02);
+    padding: 30px;
+    text-align:center;
+    cursor:pointer;
+    transition:all 0.3s;
+    position:relative;
+    overflow:hidden;
+  }
+  .upload-zone:hover, .upload-zone.drag-over {
+    border-color: var(--accent);
+    background: rgba(0,255,224,0.05);
+    box-shadow: 0 0 20px rgba(0,255,224,0.1);
+  }
+  .upload-zone-icon {
+    font-size: 36px;
+    margin-bottom: 10px;
+    display:block;
+  }
+  .upload-zone-text {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--text-dim);
+    letter-spacing: 2px;
+  }
+  .upload-zone-sub {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: rgba(74,124,118,0.6);
+    margin-top:6px;
+    letter-spacing: 1px;
+  }
+  #fileInput { display:none; }
+
+  /* ── FILE GRID ── */
+  .file-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 14px;
+  }
+
+  .file-card {
+    background: var(--bg-card);
+    border: 1px solid rgba(0,255,224,0.1);
+    border-left: 3px solid var(--accent2);
+    padding: 16px;
+    display:flex; flex-direction:column; gap:10px;
+    transition: all 0.25s;
+    position:relative;
+    overflow:hidden;
+    clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 0 100%);
+  }
+  .file-card::before {
+    content:'';
+    position:absolute; top:0; left:0; right:0;
+    height:1px;
+    background: linear-gradient(90deg, transparent, var(--accent2), transparent);
+    opacity:0;
+    transition:opacity 0.25s;
+  }
+  .file-card:hover { border-color:rgba(0,255,224,0.25); transform:translateY(-2px); box-shadow:0 8px 24px rgba(0,0,0,0.4); }
+  .file-card:hover::before { opacity:1; }
+
+  .file-card-name {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: var(--text-bright);
+    word-break:break-all;
+    flex:1;
+  }
+  .file-card-meta {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text-dim);
+    letter-spacing:1px;
+  }
+  .file-card-actions { display:flex; gap:8px; flex-wrap:wrap; }
+  .file-card-actions .btn { font-size:10px; padding: 5px 10px; }
+
+  /* ── COMMAND TOOL ── */
+  .cmd-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap:16px;
+  }
+  .cmd-card {
+    background: var(--bg-card);
+    border: 1px solid rgba(0,255,224,0.1);
+    border-top: 2px solid var(--accent);
+    padding:18px;
+    display:flex; flex-direction:column; gap:12px;
+    clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 0 100%);
+  }
+  .cmd-header { display:flex; justify-content:space-between; align-items:flex-start; gap:10px; }
+  .cmd-name {
+    font-family: var(--font-display);
+    font-size: 12px;
+    font-weight:700;
+    color: var(--accent);
+    letter-spacing:2px;
+  }
+  .cmd-category {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing:2px;
+    padding: 2px 8px;
+    border:1px solid rgba(0,184,255,0.3);
+    color: var(--accent2);
+    text-transform:uppercase;
+  }
+  .cmd-desc {
+    font-family: var(--font-body);
+    font-size: 13px;
+    color: var(--text-dim);
+    line-height:1.5;
+  }
+  .cmd-code-block {
+    background: rgba(0,0,0,0.4);
+    border: 1px solid rgba(0,255,224,0.1);
+    border-left: 3px solid var(--accent);
+    padding: 12px 14px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--accent4);
+    word-break:break-all;
+    white-space:pre-wrap;
+    line-height:1.6;
+    position:relative;
+  }
+  .cmd-actions { display:flex; gap:8px; flex-wrap:wrap; }
+  .cmd-actions .btn { font-size:10px; padding:5px 12px; }
+
+  /* ── ADD COMMAND FORM ── */
+  .add-form {
+    background: var(--bg-card2);
+    border:1px solid rgba(0,255,224,0.12);
+    border-top:2px solid var(--accent);
+    padding: 22px;
+    display:flex; flex-direction:column; gap:14px;
+  }
+  .form-row { display:flex; gap:14px; flex-wrap:wrap; }
+  .form-group { display:flex; flex-direction:column; gap:6px; flex:1; min-width:180px; }
+  .form-label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text-dim);
+    letter-spacing:2px;
+    text-transform:uppercase;
+  }
+  .form-input, .form-textarea, .form-select {
+    background: rgba(0,255,224,0.04);
+    border:1px solid rgba(0,255,224,0.15);
+    border-bottom:2px solid var(--accent);
+    color: var(--text-bright);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    padding: 10px 12px;
+    outline:none;
+    transition:all 0.25s;
+  }
+  .form-input:focus, .form-textarea:focus, .form-select:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 12px rgba(0,255,224,0.12);
+    background: rgba(0,255,224,0.07);
+  }
+  .form-textarea { resize:vertical; min-height:80px; }
+  .form-select option { background: var(--bg-card); color: var(--text); }
+
+  /* ── TERMINAL ── */
+  .terminal-wrap {
+    flex:1;
+    display:flex; flex-direction:column;
+    background: #010d10;
+    border:1px solid rgba(0,255,224,0.15);
+    min-height:400px;
+  }
+  .terminal-bar {
+    background: rgba(0,255,224,0.07);
+    border-bottom:1px solid rgba(0,255,224,0.1);
+    padding: 8px 16px;
+    display:flex; align-items:center; gap:8px;
+  }
+  .t-dot { width:10px; height:10px; border-radius:50%; }
+  .t-dot.red { background:var(--red); box-shadow:0 0 6px var(--red); }
+  .t-dot.yellow { background:var(--yellow); box-shadow:0 0 6px var(--yellow); }
+  .t-dot.green { background:var(--green); box-shadow:0 0 6px var(--green); }
+  .terminal-bar-title {
+    flex:1;
+    font-family:var(--font-mono);
+    font-size:11px;
+    color:var(--text-dim);
+    text-align:center;
+    letter-spacing:2px;
+  }
+  .terminal-output {
+    flex:1;
+    padding: 16px;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: var(--accent4);
+    overflow-y:auto;
+    line-height:1.7;
+    min-height:300px;
+    max-height:400px;
+  }
+  .terminal-output::-webkit-scrollbar { width:4px; }
+  .terminal-output::-webkit-scrollbar-thumb { background:rgba(0,255,224,0.2); }
+  .terminal-output .t-line { display:block; }
+  .terminal-output .t-prompt { color:var(--accent); }
+  .terminal-output .t-result { color: #b0ffec; }
+  .terminal-output .t-err { color: var(--red); }
+  .terminal-output .t-info { color: var(--accent2); }
+  .terminal-input-row {
+    display:flex; align-items:center; gap:0;
+    border-top:1px solid rgba(0,255,224,0.1);
+  }
+  .terminal-prompt-label {
+    font-family: var(--font-mono);
+    font-size:13px;
+    color:var(--accent);
+    padding: 12px 14px;
+    white-space:nowrap;
+    background: rgba(0,255,224,0.04);
+    border-right:1px solid rgba(0,255,224,0.1);
+    flex-shrink:0;
+  }
+  .terminal-input {
+    flex:1;
+    background:transparent;
+    border:none;
+    outline:none;
+    color:var(--accent4);
+    font-family:var(--font-mono);
+    font-size:13px;
+    padding: 12px 14px;
+    caret-color:var(--accent);
+  }
+  .terminal-send-btn {
+    font-family:var(--font-mono);
+    font-size:11px;
+    color:var(--bg-deep);
+    background: var(--accent);
+    border:none;
+    padding: 0 20px;
+    height:100%;
+    cursor:pointer;
+    letter-spacing:2px;
+    font-weight:700;
+    transition:all 0.2s;
+  }
+  .terminal-send-btn:hover { background:var(--accent2); }
+
+  /* ── NOTIFICATION ── */
+  #notification {
+    position:fixed;
+    top:90px; right:20px;
+    z-index:9000;
+    font-family:var(--font-mono);
+    font-size:12px;
+    padding:12px 20px;
+    border-left:3px solid var(--accent);
+    background:rgba(4,20,28,0.97);
+    color:var(--accent);
+    box-shadow:0 4px 30px rgba(0,0,0,0.5);
+    transform:translateX(120%);
+    transition:transform 0.35s cubic-bezier(.17,.67,.35,1.2);
+    letter-spacing:1px;
+    max-width:300px;
+  }
+  #notification.show { transform:translateX(0); }
+  #notification.error { border-left-color:var(--red); color:var(--red); }
+  #notification.success { border-left-color:var(--green); color:var(--green); }
+
+  /* ── EMPTY STATE ── */
+  .empty-state {
+    text-align:center;
+    padding:60px 20px;
+    color:var(--text-dim);
+  }
+  .empty-state-icon { font-size:48px; margin-bottom:14px; display:block; filter:grayscale(1) opacity(0.4); }
+  .empty-state-text { font-family:var(--font-mono); font-size:12px; letter-spacing:2px; }
+
+  /* ── MODAL ── */
+  .modal-overlay {
+    position:fixed; inset:0;
+    background:rgba(0,0,0,0.75);
+    z-index:8000;
+    display:none; align-items:center; justify-content:center;
+  }
+  .modal-overlay.open { display:flex; }
+  .modal {
+    background: var(--bg-card);
+    border:1px solid var(--accent);
+    border-top:3px solid var(--accent);
+    padding:30px;
+    width:min(480px,92vw);
+    box-shadow:0 0 60px rgba(0,255,224,0.15);
+    clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 0 100%);
+  }
+  .modal-title {
+    font-family:var(--font-display);
+    font-size:14px;
+    font-weight:700;
+    letter-spacing:4px;
+    color:var(--accent);
+    margin-bottom:20px;
+  }
+  .modal-actions { display:flex; gap:12px; margin-top:20px; justify-content:flex-end; }
+
+  /* ── SEARCH BAR ── */
+  .search-bar {
+    display:flex; align-items:center; gap:0;
+    border:1px solid rgba(0,255,224,0.15);
+    background:rgba(0,255,224,0.03);
+    overflow:hidden;
+  }
+  .search-bar input {
+    flex:1; background:transparent; border:none; outline:none;
+    color:var(--text-bright);
+    font-family:var(--font-mono);
+    font-size:12px;
+    padding:9px 14px;
+    caret-color:var(--accent);
+  }
+  .search-bar-label {
+    font-family:var(--font-mono);
+    font-size:10px;
+    color:var(--text-dim);
+    padding:0 12px;
+    letter-spacing:2px;
+    flex-shrink:0;
+    border-right:1px solid rgba(0,255,224,0.1);
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width:600px) {
+    .banner { padding:0 14px; }
+    .banner-stats { display:none; }
+    .section-wrap { padding:14px; }
+  }
+
+  /* ── GLITCH ANIMATION FOR BANNER ── */
+  @keyframes glitch {
+    0%,100% { clip-path:none; transform:none; }
+    92% { clip-path:none; transform:none; }
+    93% { clip-path:polygon(0 30%,100% 30%,100% 50%,0 50%); transform:translate(-3px,0); }
+    94% { clip-path:polygon(0 60%,100% 60%,100% 80%,0 80%); transform:translate(3px,0); }
+    95% { clip-path:none; transform:none; }
+  }
+  .banner-title { animation: glitch 6s ease-in-out infinite; }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════ LOGIN ═══════════════════ -->
+<div id="loginScreen">
+  <div class="login-3d-wrap">
+    <div class="login-cube">
+      <div class="cube-face front">DV</div>
+      <div class="cube-face back">LAB</div>
+      <div class="cube-face left">◈</div>
+      <div class="cube-face right">◈</div>
+      <div class="cube-face top"></div>
+      <div class="cube-face bottom"></div>
+    </div>
+  </div>
+  <div class="login-title">DAVITHEN<span style="color:var(--accent2)"> LAB</span></div>
+  <div class="login-subtitle">// CYBERSECURITY OPERATIONS PLATFORM //</div>
+  <div class="login-box">
+    <label class="login-field-label">ACCESS CODE</label>
+    <input class="login-input" id="loginInput" type="password" placeholder="••••••••••••••" autocomplete="off" />
+    <button class="login-btn" onclick="doLogin()">AUTHENTICATE</button>
+    <div class="login-error" id="loginError"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════ NOTIFICATION ═══════════════════ -->
+<div id="notification"></div>
+
+<!-- ═══════════════════ MAIN APP ═══════════════════ -->
+<div id="app">
+  <div class="bg-grid"></div>
+  <div class="bg-radar"></div>
+
+  <!-- BANNER -->
+  <header class="banner">
+    <div class="banner-3d-wrap">
+      <div class="banner-cube">
+        <div class="banner-cube-face front"></div>
+        <div class="banner-cube-face back"></div>
+        <div class="banner-cube-face left"></div>
+        <div class="banner-cube-face right"></div>
+        <div class="banner-cube-face top"></div>
+        <div class="banner-cube-face bottom"></div>
+      </div>
+    </div>
+    <div class="banner-title-wrap">
+      <div class="banner-title">DAVITHEN <span>TOOL</span> LAB</div>
+      <div class="banner-tagline">// KALI LINUX OPERATIONS PLATFORM // SECURITY TOOLKIT //</div>
+    </div>
+    <div class="banner-stats" id="bannerStats">
+      <div class="bstat"><div class="bstat-val" id="stat-files">0</div><div class="bstat-label">FILES</div></div>
+      <div class="bstat"><div class="bstat-val" id="stat-cmds">0</div><div class="bstat-label">COMMANDS</div></div>
+    </div>
+    <div class="banner-status"><div class="status-dot"></div>ONLINE</div>
+    <div class="banner-user" onclick="logout()" title="Logout">⏻ DAVITHEN</div>
+  </header>
+
+  <!-- NAV TABS -->
+  <nav class="nav-tabs" id="navTabs">
+    <div class="nav-tab active" data-tab="files" onclick="switchTab('files',this)">
+      📁 FILE ARSENAL <span class="tab-badge" id="badge-files">0</span>
+    </div>
+    <div class="nav-tab" data-tab="commands" onclick="switchTab('commands',this)">
+      🔧 TOOLS <span class="tab-badge" id="badge-cmds">0</span>
+    </div>
+    <div class="nav-tab" data-tab="terminal" onclick="switchTab('terminal',this)">
+      💻 TERMINAL
+    </div>
+  </nav>
+
+  <!-- MAIN LAYOUT -->
+  <div class="main-layout">
+
+    <!-- ── TAB: FILES ── -->
+    <div class="tab-content active" id="tab-files">
+      <div class="section-wrap">
+        <div class="section-header">
+          <div class="section-title">FILE ARSENAL</div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;">
+            <div class="search-bar">
+              <div class="search-bar-label">SEARCH</div>
+              <input type="text" id="fileSearch" placeholder="filter files..." oninput="renderFiles()">
+            </div>
+            <button class="btn" onclick="document.getElementById('fileInput').click()">+ UPLOAD FILE</button>
+            <input type="file" id="fileInput" multiple onchange="handleFileUpload(this.files)">
+          </div>
+        </div>
+        <div class="upload-zone" id="dropZone" onclick="document.getElementById('fileInput').click()">
+          <span class="upload-zone-icon">🗂️</span>
+          <div class="upload-zone-text">DROP FILES HERE OR CLICK TO UPLOAD</div>
+          <div class="upload-zone-sub">Any file type accepted — stored locally in your session</div>
+        </div>
+        <div class="file-grid" id="fileGrid"></div>
+      </div>
+    </div>
+
+    <!-- ── TAB: TOOLS ── -->
+    <div class="tab-content" id="tab-commands">
+      <div class="section-wrap">
+
+        <!-- ADD TOOL FORM -->
+        <div>
+          <div class="section-header" style="margin-bottom:14px;">
+            <div class="section-title">ADD TOOL</div>
+          </div>
+          <div class="add-form">
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Tool Name</label>
+                <input class="form-input" id="cmdName" placeholder="e.g. Nmap, Sqlmap, Burp Suite" />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Import File (optional)</label>
+                <input type="file" id="toolFileInput" style="display:none" onchange="handleToolFile(this)">
+                <div style="display:flex;gap:8px;align-items:center;margin-top:2px;">
+                  <button class="btn" onclick="document.getElementById('toolFileInput').click()">📎 BROWSE</button>
+                  <span id="toolFileName" style="font-family:var(--font-mono);font-size:10px;color:var(--text-dim);letter-spacing:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:200px;">No file selected</span>
+                </div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Command</label>
+              <textarea class="form-textarea" id="cmdCode" placeholder="e.g. nmap -sV -sC -p- --open -T4 TARGET_IP"></textarea>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Description</label>
+              <input class="form-input" id="cmdDesc" placeholder="What does this tool do?" />
+            </div>
+            <div style="display:flex;gap:10px;justify-content:flex-end;">
+              <button class="btn green" onclick="addCommand()">+ ADD TOOL</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- TOOL LIST -->
+        <div>
+          <div class="section-header" style="margin-bottom:14px;">
+            <div class="section-title">TOOL ARSENAL</div>
+            <div class="search-bar">
+              <div class="search-bar-label">FILTER</div>
+              <input type="text" id="cmdSearch" placeholder="search tools..." oninput="renderCommands()">
+            </div>
+          </div>
+          <div class="cmd-grid" id="cmdGrid"></div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── TAB: TERMINAL ── -->
+    <div class="tab-content" id="tab-terminal">
+      <div class="section-wrap">
+        <div class="section-header">
+          <div class="section-title">TERMINAL EMULATOR</div>
+          <button class="btn red" onclick="clearTerminal()">CLEAR</button>
+        </div>
+        <div class="terminal-wrap">
+          <div class="terminal-bar">
+            <div class="t-dot red"></div>
+            <div class="t-dot yellow"></div>
+            <div class="t-dot green"></div>
+            <div class="terminal-bar-title">DAVITHEN@KALI:~$</div>
+          </div>
+          <div class="terminal-output" id="termOutput">
+            <span class="t-line t-info">╔═══════════════════════════════════════╗</span>
+            <span class="t-line t-info">║     DAVITHEN LAB — TERMINAL v1.0      ║</span>
+            <span class="t-line t-info">╚═══════════════════════════════════════╝</span>
+            <span class="t-line t-result">System initialized. Type 'help' for commands.</span>
+            <span class="t-line"> </span>
+          </div>
+          <div class="terminal-input-row">
+            <div class="terminal-prompt-label">DAVITHEN@KALI:~$</div>
+            <input class="terminal-input" id="termInput" type="text" placeholder="enter command..." autocomplete="off" onkeydown="termKeydown(event)" />
+            <button class="terminal-send-btn" onclick="termRun()">EXEC</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /main-layout -->
+</div><!-- /app -->
+
+<!-- DELETE CONFIRM MODAL -->
+<div class="modal-overlay" id="deleteModal">
+  <div class="modal">
+    <div class="modal-title">⚠ CONFIRM DELETE</div>
+    <div style="font-family:var(--font-mono);font-size:13px;color:var(--text-dim);" id="deleteModalText">Are you sure you want to delete this item?</div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal()">CANCEL</button>
+      <button class="btn red" id="confirmDeleteBtn">DELETE</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════
+//  STATE
+// ════════════════════════════════════════
+const PASSWORD = 'davithenkalip10';
+let files = JSON.parse(localStorage.getItem('dvt_files') || '[]');
+let commands = JSON.parse(localStorage.getItem('dvt_commands') || '[]');
+let termHistory = [];
+let termHistIdx = -1;
+let pendingDeleteFn = null;
+
+// ════════════════════════════════════════
+//  LOGIN
+// ════════════════════════════════════════
+function doLogin() {
+  const val = document.getElementById('loginInput').value;
+  if (val === PASSWORD) {
+    document.getElementById('loginScreen').classList.add('fade-out');
+    setTimeout(() => {
+      document.getElementById('loginScreen').style.display = 'none';
+      document.getElementById('app').classList.add('visible');
+      renderFiles(); renderCommands(); updateStats();
+      termPrint('info', 'Welcome, DAVITHEN. Access granted.');
+    }, 700);
+  } else {
+    const err = document.getElementById('loginError');
+    err.textContent = '✖ ACCESS DENIED — INVALID CODE';
+    document.getElementById('loginInput').value = '';
+    document.getElementById('loginInput').style.borderBottomColor = 'var(--red)';
+    setTimeout(() => {
+      err.textContent = '';
+      document.getElementById('loginInput').style.borderBottomColor = 'var(--accent)';
+    }, 2500);
+  }
+}
+document.getElementById('loginInput').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+
+function logout() {
+  if (!confirm('Logout from DAVITHEN LAB?')) return;
+  document.getElementById('app').classList.remove('visible');
+  document.getElementById('loginScreen').style.display = 'flex';
+  document.getElementById('loginScreen').classList.remove('fade-out');
+  document.getElementById('loginInput').value = '';
+}
+
+// ════════════════════════════════════════
+//  TABS
+// ════════════════════════════════════════
+function switchTab(id, el) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  el.classList.add('active');
+}
+
+// ════════════════════════════════════════
+//  NOTIFICATIONS
+// ════════════════════════════════════════
+function notify(msg, type='success') {
+  const n = document.getElementById('notification');
+  n.textContent = msg;
+  n.className = 'show ' + type;
+  clearTimeout(n._t);
+  n._t = setTimeout(() => n.classList.remove('show'), 2800);
+}
+
+// ════════════════════════════════════════
+//  STATS
+// ════════════════════════════════════════
+function updateStats() {
+  document.getElementById('stat-files').textContent = files.length;
+  document.getElementById('stat-cmds').textContent = commands.length;
+  document.getElementById('badge-files').textContent = files.length;
+  document.getElementById('badge-cmds').textContent = commands.length;
+}
+
+function saveAll() {
+  localStorage.setItem('dvt_files', JSON.stringify(files));
+  localStorage.setItem('dvt_commands', JSON.stringify(commands));
+  updateStats();
+}
+
+// ════════════════════════════════════════
+//  FILE MANAGEMENT
+// ════════════════════════════════════════
+function handleFileUpload(fileList) {
+  Array.from(fileList).forEach(f => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      files.unshift({ id: Date.now() + Math.random(), name: f.name, size: f.size, type: f.type, data: e.target.result, added: new Date().toLocaleString() });
+      saveAll(); renderFiles();
+      notify(`✔ FILE ADDED: ${f.name}`);
+    };
+    reader.readAsDataURL(f);
+  });
+}
+
+// Drag-and-drop
+const dropZone = document.getElementById('dropZone');
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+dropZone.addEventListener('drop', e => {
+  e.preventDefault(); dropZone.classList.remove('drag-over');
+  handleFileUpload(e.dataTransfer.files);
+});
+
+function formatSize(bytes) {
+  if (bytes < 1024) return bytes + ' B';
+  if (bytes < 1024*1024) return (bytes/1024).toFixed(1) + ' KB';
+  return (bytes/(1024*1024)).toFixed(1) + ' MB';
+}
+
+function renderFiles() {
+  const q = (document.getElementById('fileSearch').value || '').toLowerCase();
+  const list = q ? files.filter(f => f.name.toLowerCase().includes(q)) : files;
+  const grid = document.getElementById('fileGrid');
+  if (!list.length) {
+    grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><span class="empty-state-icon">📂</span><div class="empty-state-text">NO FILES STORED — UPLOAD FROM YOUR PC</div></div>`;
+    return;
+  }
+  grid.innerHTML = list.map(f => `
+    <div class="file-card">
+      <div class="file-card-name">📄 ${esc(f.name)}</div>
+      <div class="file-card-meta">${formatSize(f.size)} &nbsp;|&nbsp; ${esc(f.type||'unknown')} &nbsp;|&nbsp; ${f.added}</div>
+      <div class="file-card-actions">
+        <button class="btn green" onclick="downloadFile('${f.id}')">⬇ DOWNLOAD</button>
+        <button class="btn red" onclick="confirmDelete('file','${f.id}','${esc(f.name)}')">✖ DELETE</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function downloadFile(id) {
+  const f = files.find(x => x.id == id);
+  if (!f) return;
+  const a = document.createElement('a');
+  a.href = f.data; a.download = f.name; a.click();
+  notify(`⬇ DOWNLOADING: ${f.name}`);
+}
+
+// ════════════════════════════════════════
+//  TOOL FILE IMPORT
+// ════════════════════════════════════════
+let _toolFile = null;
+function handleToolFile(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    _toolFile = { name: file.name, size: file.size, type: file.type || 'unknown', data: e.target.result };
+    document.getElementById('toolFileName').textContent = file.name;
+    document.getElementById('toolFileName').style.color = 'var(--accent)';
+  };
+  reader.readAsDataURL(file);
+}
+
+// ════════════════════════════════════════
+//  TOOL MANAGEMENT
+// ════════════════════════════════════════
+function addCommand() {
+  const name = document.getElementById('cmdName').value.trim();
+  const desc = document.getElementById('cmdDesc').value.trim();
+  const code = document.getElementById('cmdCode').value.trim();
+  if (!name || !code) { notify('Tool Name and Command are required.', 'error'); return; }
+  commands.unshift({ id: Date.now(), name, desc, code, file: _toolFile || null, added: new Date().toLocaleString() });
+  saveAll(); renderCommands();
+  document.getElementById('cmdName').value = '';
+  document.getElementById('cmdDesc').value = '';
+  document.getElementById('cmdCode').value = '';
+  document.getElementById('toolFileName').textContent = 'No file selected';
+  document.getElementById('toolFileName').style.color = '';
+  document.getElementById('toolFileInput').value = '';
+  _toolFile = null;
+  notify(`🔧 TOOL ADDED: ${name}`);
+}
+
+function renderCommands() {
+  const q = (document.getElementById('cmdSearch').value || '').toLowerCase();
+  const list = q ? commands.filter(c => c.name.toLowerCase().includes(q) || c.code.toLowerCase().includes(q)) : commands;
+  const grid = document.getElementById('cmdGrid');
+  if (!list.length) {
+    grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><span class="empty-state-icon">🔧</span><div class="empty-state-text">NO TOOLS ADDED — ADD YOUR FIRST TOOL</div></div>`;
+    return;
+  }
+  grid.innerHTML = list.map(c => `
+    <div class="cmd-card">
+      <div class="cmd-header">
+        <div class="cmd-name">${esc(c.name)}</div>
+        ${c.file ? `<div class="cmd-category" title="${esc(c.file.name)}">📎 ${esc(c.file.name)}</div>` : ''}
+      </div>
+      ${c.desc ? `<div class="cmd-desc">${esc(c.desc)}</div>` : ''}
+      <div class="cmd-code-block">${esc(c.code)}</div>
+      <div class="cmd-actions">
+        <button class="btn yellow" onclick="copyCommand('${c.id}')">⧉ COPY COMMAND</button>
+        ${c.file ? `<button class="btn green" onclick="downloadToolFile('${c.id}')">⬇ DOWNLOAD FILE</button>` : ''}
+        <button class="btn red" onclick="confirmDelete('cmd','${c.id}','${esc(c.name)}')">✖ DELETE</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function downloadToolFile(id) {
+  const c = commands.find(x => x.id == id);
+  if (!c || !c.file) return;
+  const a = document.createElement('a');
+  a.href = c.file.data; a.download = c.file.name; a.click();
+  notify(`⬇ DOWNLOADING: ${c.file.name}`);
+}
+
+function copyCommand(id) {
+  const c = commands.find(x => x.id == id);
+  if (!c) return;
+  navigator.clipboard.writeText(c.code).then(() => notify(`⧉ COPIED: ${c.name}`)).catch(() => notify('Clipboard not available', 'error'));
+}
+
+function sendToTerminal(id) {
+  const c = commands.find(x => x.id == id);
+  if (!c) return;
+  switchTab('terminal', document.querySelector('[data-tab="terminal"]'));
+  document.getElementById('termInput').value = c.code;
+  document.getElementById('termInput').focus();
+  notify(`▶ SENT TO TERMINAL: ${c.name}`);
+}
+
+// ════════════════════════════════════════
+//  DELETE MODAL
+// ════════════════════════════════════════
+function confirmDelete(type, id, name) {
+  document.getElementById('deleteModalText').textContent = `Delete "${name}"? This cannot be undone.`;
+  pendingDeleteFn = () => {
+    if (type === 'file') { files = files.filter(f => f.id != id); saveAll(); renderFiles(); }
+    if (type === 'cmd')  { commands = commands.filter(c => c.id != id); saveAll(); renderCommands(); }
+    notify(`✖ DELETED: ${name}`, 'error');
+    closeModal();
+  };
+  document.getElementById('confirmDeleteBtn').onclick = pendingDeleteFn;
+  document.getElementById('deleteModal').classList.add('open');
+}
+function closeModal() { document.getElementById('deleteModal').classList.remove('open'); pendingDeleteFn = null; }
+document.getElementById('deleteModal').addEventListener('click', e => { if (e.target === document.getElementById('deleteModal')) closeModal(); });
+
+// ════════════════════════════════════════
+//  TERMINAL EMULATOR
+// ════════════════════════════════════════
+const TERM_HELP = `
+BUILT-IN COMMANDS:
+  help          — Show this help
+  clear         — Clear terminal
+  ls            — List stored files
+  cmds          — List stored commands
+  whoami        — Current user info
+  echo [text]   — Print text
+  date          — Current date/time
+  banner        — Show banner
+  pwd           — Print working directory
+  history       — Show command history
+  version       — Platform version
+`.trim();
+
+function termPrint(type, text) {
+  const out = document.getElementById('termOutput');
+  const span = document.createElement('span');
+  span.className = 't-line t-' + type;
+  span.textContent = text;
+  out.appendChild(span);
+  out.scrollTop = out.scrollHeight;
+}
+
+function clearTerminal() {
+  document.getElementById('termOutput').innerHTML = '';
+  termPrint('info', 'Terminal cleared.');
+}
+
+function termRun() {
+  const input = document.getElementById('termInput');
+  const raw = input.value.trim();
+  if (!raw) return;
+  termHistory.unshift(raw); termHistIdx = -1;
+  termPrint('prompt', `DAVITHEN@KALI:~$ ${raw}`);
+  input.value = '';
+  runTermCmd(raw);
+}
+
+function termKeydown(e) {
+  if (e.key === 'Enter') { termRun(); return; }
+  if (e.key === 'ArrowUp') { termHistIdx = Math.min(termHistIdx+1, termHistory.length-1); document.getElementById('termInput').value = termHistory[termHistIdx] || ''; }
+  if (e.key === 'ArrowDown') { termHistIdx = Math.max(termHistIdx-1, -1); document.getElementById('termInput').value = termHistIdx < 0 ? '' : termHistory[termHistIdx]; }
+}
+
+function runTermCmd(cmd) {
+  const parts = cmd.trim().split(/\s+/);
+  const base  = parts[0].toLowerCase();
+  const args  = parts.slice(1).join(' ');
+
+  const cmds_map = {
+    help:    () => TERM_HELP.split('\n').forEach(l => termPrint('result', l)),
+    clear:   () => clearTerminal(),
+    whoami:  () => termPrint('result', 'davithen — DAVITHEN LAB OPERATOR'),
+    pwd:     () => termPrint('result', '/home/davithen/lab'),
+    date:    () => termPrint('result', new Date().toString()),
+    version: () => termPrint('result', 'DAVITHEN LAB v1.0.0 — Kali Linux Mode'),
+    banner:  () => {
+      ['██████╗  █████╗ ██╗   ██╗██╗████████╗██╗  ██╗███████╗███╗   ██╗',
+       '██╔══██╗██╔══██╗██║   ██║██║╚══██╔══╝██║  ██║██╔════╝████╗  ██║',
+       '██║  ██║███████║██║   ██║██║   ██║   ███████║█████╗  ██╔██╗ ██║',
+       '██║  ██║██╔══██║╚██╗ ██╔╝██║   ██║   ██╔══██║██╔══╝  ██║╚██╗██║',
+       '██████╔╝██║  ██║ ╚████╔╝ ██║   ██║   ██║  ██║███████╗██║ ╚████║',
+       '╚═════╝ ╚═╝  ╚═╝  ╚═══╝  ╚═╝   ╚═╝   ╚═╝  ╚═╝╚══════╝╚═╝  ╚═══╝',
+       '                         L A B'
+      ].forEach(l => termPrint('info', l));
+    },
+    ls: () => {
+      if (!files.length) { termPrint('result', 'No files stored.'); return; }
+      files.forEach(f => termPrint('result', `  ${f.name}  [${formatSize(f.size)}]  ${f.added}`));
+      termPrint('result', `  Total: ${files.length} file(s)`);
+    },
+    cmds: () => {
+      if (!commands.length) { termPrint('result', 'No commands stored.'); return; }
+      commands.forEach(c => termPrint('result', `  [${c.cat}] ${c.name}`));
+      termPrint('result', `  Total: ${commands.length} command(s)`);
+    },
+    echo: () => termPrint('result', args || ''),
+    history: () => {
+      if (!termHistory.length) { termPrint('result', 'No history.'); return; }
+      termHistory.slice(0,20).forEach((h,i) => termPrint('result', `  ${i+1}. ${h}`));
+    }
+  };
+
+  if (cmds_map[base]) { cmds_map[base](); }
+  else {
+    // Just echo back with a simulated response
+    termPrint('result', `[simulated] ${cmd}: command executed (this is a browser terminal — actual system commands are not run)`);
+  }
+  const out = document.getElementById('termOutput');
+  out.scrollTop = out.scrollHeight;
+}
+
+// ════════════════════════════════════════
+//  UTILS
+// ════════════════════════════════════════
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+// Initial render
+renderFiles(); renderCommands(); updateStats();
+</script>
+</body>
+</html>
